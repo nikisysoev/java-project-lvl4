@@ -1,7 +1,7 @@
-name: GitHub Actions
-on: [push]
+name: gitHub actions
+on: [push, pull_request]
 jobs:
-  Build:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.4.2
@@ -9,7 +9,7 @@ jobs:
       - uses: gradle/gradle-build-action@v2.2.1
         with:
           distribution: 'zulu'
-          java-version: '17.0.3'
+          java-version: '17'
       - name: Build with Gradle
         run: make build
 
