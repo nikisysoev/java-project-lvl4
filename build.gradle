@@ -53,5 +53,5 @@ task generateMigrations(type: JavaExec) {
     mainClass = 'hexlet.code.MigrationGenerator'
 }
 
-task stage(dependsOn: ['clean', 'installDist', 'generateMigrations'])
+task stage(dependsOn: ['clean', 'installDist'])
 installDist.mustRunAfter clean
