@@ -14,10 +14,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 class AppTest {
 
-    @Test
-    void testInit() {
-        assertThat(true).isEqualTo(true);
-    }
     private static Javalin app;
     private static String baseUrl;
 
@@ -48,5 +44,10 @@ class AppTest {
     @AfterEach
     void afterEach() {
         transaction.rollback();
+    }
+
+    @Test
+    void testInit() {
+        assertThat(true).isEqualTo(true);
     }
 }
