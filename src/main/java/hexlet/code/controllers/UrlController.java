@@ -90,6 +90,6 @@ public final class UrlController {
     };
 
     public static Handler checkExistingUrl = ctx -> {
-        ctx.redirect("urls/"); // ID
+        ctx.redirect("/"); // ID
     };
 }

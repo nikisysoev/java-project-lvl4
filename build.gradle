@@ -34,7 +34,7 @@ dependencies {
     implementation 'io.ebean:ebean-annotation:8.0'
     annotationProcessor 'io.ebean:querybean-generator:13.6.3'
 
-    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.5'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.0'
     implementation 'javax.activation:activation:1.1.1'
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
