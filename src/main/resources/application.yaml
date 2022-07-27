@@ -5,8 +5,8 @@ datasource:
     password: sa
     url: "jdbc:h2:./database"
   production:
-    username: ${JDBC_DATABASE_URL}
-    password: ${JDBC_DATABASE_URL}
+    username: ${JDBC_DATABASE_USERNAME}
+    password: ${JDBC_DATABASE_PASSWORD}
     url: ${JDBC_DATABASE_URL}
 
 ebean:
