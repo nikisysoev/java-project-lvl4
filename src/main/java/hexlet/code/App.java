@@ -1,6 +1,8 @@
 package hexlet.code;
 
-import io.javalin.Javalin;
+import hexlet.code.controllers.RootController;
+import hexlet.code.controllers.UrlController;
+
 import io.javalin.plugin.rendering.template.JavalinThymeleaf;
 import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 import org.thymeleaf.TemplateEngine;
@@ -8,14 +10,25 @@ import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
+import static io.javalin.apibuilder.ApiBuilder.get;
+import static io.javalin.apibuilder.ApiBuilder.path;
+import static io.javalin.apibuilder.ApiBuilder.post;
+
+import io.javalin.Javalin;
+
 public final class App {
 
     private static int getPort() {
-        String port = System.getenv("PORT");
-        if (port != null) {
-            return Integer.parseInt(port);
-        }
-        return 5050;
+        String port = System.getenv().getOrDefault("PORT", "8080");
+        return Integer.parseInt(port);
+    }
+
+    private static String getMode() {
+        return System.getenv().getOrDefault("APP_ENV", "development");
+    }
+
+    private static boolean isProduction() {
+        return getMode().equals("production");
     }
 
     private static TemplateEngine getTemplateEngine() {
@@ -32,14 +45,36 @@ public final class App {
         return templateEngine;
     }
 
+    private static void addRoutes(Javalin app) {
+        app.get("/", RootController.welcome);
+
+        app.routes(() -> {
+            path("urls", () -> {
+                get(UrlController.listUrls);
+                post(UrlController.checkNewUrl);
+
+                path("{id}", () -> {
+                    get(UrlController.showUrl);
+                    post("check", UrlController.checkExistingUrl);
+                });
+            });
+        });
+    }
+
     public static Javalin getApp() {
         Javalin app = Javalin.create(config -> {
-            config.enableDevLogging();
+            if (!isProduction()) {
+                config.enableDevLogging();
+            }
             config.enableWebjars();
+            JavalinThymeleaf.configure(getTemplateEngine());
         });
-        JavalinThymeleaf.configure(getTemplateEngine());
 
-        app.get("/", ctx -> ctx.result("Hello, World!"));
+        addRoutes(app);
+
+        app.before(ctx -> {
+            ctx.attribute("ctx", ctx);
+        });
 
         return app;
     }
