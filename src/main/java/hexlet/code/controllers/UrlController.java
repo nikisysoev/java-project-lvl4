@@ -62,7 +62,7 @@ public final class UrlController {
         if (urlModel != null) {
             ctx.sessionAttribute("flash", "Страница уже существует");
             ctx.sessionAttribute("flash-type", "warning");
-            ctx.redirect("urls");
+            ctx.redirect("/urls");
             return;
         }
 
@@ -71,7 +71,7 @@ public final class UrlController {
 
         ctx.sessionAttribute("flash", "Страница успешно добавлена");
         ctx.sessionAttribute("flash-type", "success");
-        ctx.redirect("urls");
+        ctx.redirect("/urls");
     };
 
     public static Handler showUrl = ctx -> {
