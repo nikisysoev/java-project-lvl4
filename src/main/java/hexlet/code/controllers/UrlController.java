@@ -1,17 +1,27 @@
 package hexlet.code.controllers;
 
 import hexlet.code.domain.Url;
+import hexlet.code.domain.UrlCheck;
 import hexlet.code.domain.query.QUrl;
+import hexlet.code.domain.query.QUrlCheck;
 
 import io.ebean.PagedList;
 
 import io.javalin.http.Handler;
 import io.javalin.http.NotFoundResponse;
 
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public final class UrlController {
 
@@ -26,6 +36,11 @@ public final class UrlController {
                 .findPagedList();
 
         List<Url> urls = pagedList.getList();
+        List<UrlCheck> lastUrlChecks = urls.stream()
+                .map(Url::getUrlChecks)
+                .filter(list -> !list.isEmpty())
+                .map(list -> list.get(list.size() - 1)).
+                toList();
 
         int currentPage = pagedList.getPageIndex() + 1;
         int totalPages = pagedList.getTotalPageCount() + 1;
@@ -37,13 +52,14 @@ public final class UrlController {
         ctx.attribute("pages", pages);
         ctx.attribute("currentPage", currentPage);
         ctx.attribute("urls", urls);
+        ctx.attribute("lastUrlChecks", lastUrlChecks);
         ctx.render("urls/index.html");
     };
 
     public static Handler checkNewUrl = ctx -> {
         String url = ctx.formParam("url");
-        URL urlNet;
 
+        URL urlNet;
         try {
             urlNet = new URL(url);
         } catch (MalformedURLException e) {
@@ -85,11 +101,45 @@ public final class UrlController {
             throw new NotFoundResponse();
         }
 
+        List<UrlCheck> urlChecks = new QUrlCheck()
+                .url.id.equalTo(id)
+                .id.desc().findList();
+
+        ctx.attribute("urlChecks", urlChecks);
         ctx.attribute("url", urlModel);
         ctx.render("urls/show.html");
     };
 
     public static Handler checkExistingUrl = ctx -> {
-        ctx.redirect("/"); // ID
+        int id = ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
+
+        Url urlModel = new QUrl()
+                .id.equalTo(id)
+                .findOne();
+
+        if (urlModel == null) {
+            throw new NotFoundResponse();
+        }
+
+        HttpResponse<String> response = Unirest.get(urlModel.getName()).asString();
+        int statusCode = response.getStatus();
+
+        Document doc = Jsoup.parse(response.getBody());
+        String title = doc.title();
+
+        List<String> tags = Stream.of("h1", "meta[name=content]")
+                .map(doc::selectFirst)
+                .map(element -> (element != null) ? element.text() : "")
+                .toList();
+
+        String h1 = tags.get(0);
+        String description = tags.get(1);
+
+        UrlCheck urlCheck = new UrlCheck(statusCode, title, h1, description, urlModel);
+        urlCheck.save();
+
+        ctx.sessionAttribute("flash", "Страница успешно проверена");
+        ctx.sessionAttribute("flash-type", "success");
+        ctx.redirect("/urls/" + id);
     };
 }

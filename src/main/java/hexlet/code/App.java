@@ -3,20 +3,19 @@ package hexlet.code;
 import hexlet.code.controllers.RootController;
 import hexlet.code.controllers.UrlController;
 
-import io.javalin.plugin.rendering.template.JavalinThymeleaf;
 import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
+import io.javalin.plugin.rendering.template.JavalinThymeleaf;
 import static io.javalin.apibuilder.ApiBuilder.get;
 import static io.javalin.apibuilder.ApiBuilder.path;
 import static io.javalin.apibuilder.ApiBuilder.post;
-
 import io.javalin.Javalin;
 
-public final class App {
+final class App {
 
     private static int getPort() {
         String port = System.getenv().getOrDefault("PORT", "8080");
@@ -55,15 +54,15 @@ public final class App {
 
                 path("{id}", () -> {
                     get(UrlController.showUrl);
-                    post("check", UrlController.checkExistingUrl);
+                    post("checks", UrlController.checkExistingUrl);
                 });
             });
         });
     }
 
-    public static Javalin getApp() {
+    static Javalin getApp() {
         Javalin app = Javalin.create(config -> {
-            if (isProduction()) {
+            if (!isProduction()) {
                 config.enableDevLogging();
             }
             config.enableWebjars();

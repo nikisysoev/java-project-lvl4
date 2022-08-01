@@ -41,13 +41,13 @@
             </thead>
 
             <tbody>
-            <tr>
-                <td>3</td>
-                <td>200</td>
-                <td>YouTube</td>
-                <td></td>
-                <td>Auf YouTube findest du die angesagtesten Videos...</td>
-                <td>24/07/2022 12:19</td>
+            <tr th:each="urlСheck : ${urlChecks}" th:object="${urlСheck}">
+                <td th:text="*{getId()}"></td>
+                <td th:text="*{getStatusCode()}"></td>
+                <td th:text="*{getTitle()}"></td>
+                <td th:text="*{getH1()}"></td>
+                <td th:text="*{getDescription()}"></td>
+                <td th:text="${#temporals.format(urlСheck.getCreatedAt(), 'dd/MM/yyyy HH:mm')}"></td>
             </tr>
             </tbody>
 
