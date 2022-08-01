@@ -15,13 +15,13 @@ import kong.unirest.Unirest;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import java.util.List;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public final class UrlController {
 
@@ -127,13 +127,10 @@ public final class UrlController {
         Document doc = Jsoup.parse(response.getBody());
         String title = doc.title();
 
-        List<String> tags = Stream.of("h1", "meta[name=content]")
-                .map(doc::selectFirst)
-                .map(element -> (element != null) ? element.text() : "")
-                .toList();
-
-        String h1 = tags.get(0);
-        String description = tags.get(1);
+        Element h1Elem = doc.selectFirst("h1");
+        Element descriptionElem = doc.selectFirst("meta[name=description]");
+        String h1 = (h1Elem != null) ? h1Elem.text() : "";
+        String description = (descriptionElem != null) ? descriptionElem.attr("content") : "";
 
         UrlCheck urlCheck = new UrlCheck(statusCode, title, h1, description, urlModel);
         urlCheck.save();

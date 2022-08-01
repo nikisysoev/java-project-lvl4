@@ -165,6 +165,9 @@ final class AppTest {
 
             assertThat(urlCheck).isNotNull();
             assertThat(urlCheck.getUrl().getName()).isEqualTo(existingUrl.getName());
+            assertThat(urlCheck.getH1()).isEqualTo("Добро пожаловать!");
+            assertThat(urlCheck.getTitle()).isEqualTo("Hexlet");
+            assertThat(urlCheck.getDescription()).isEqualTo("Обучение");
         }
     }
 }
