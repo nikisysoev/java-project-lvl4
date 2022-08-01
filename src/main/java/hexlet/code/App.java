@@ -15,7 +15,7 @@ import static io.javalin.apibuilder.ApiBuilder.path;
 import static io.javalin.apibuilder.ApiBuilder.post;
 import io.javalin.Javalin;
 
-final class App {
+public final class App {
 
     private static int getPort() {
         String port = System.getenv().getOrDefault("PORT", "8080");
@@ -60,7 +60,7 @@ final class App {
         });
     }
 
-    static Javalin getApp() {
+    public static Javalin getApp() {
         Javalin app = Javalin.create(config -> {
             if (!isProduction()) {
                 config.enableDevLogging();
