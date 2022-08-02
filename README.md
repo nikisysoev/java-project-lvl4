@@ -4,4 +4,6 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/de64794e3b9e69f12200/maintainability)](https://codeclimate.com/github/nikisysoev/java-project-lvl4/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/de64794e3b9e69f12200/test_coverage)](https://codeclimate.com/github/nikisysoev/java-project-lvl4/test_coverage)
 
-https://cryptic-stream-78448.herokuapp.com/
+# PageAnalyzer
+
+[PageAnalyzer](https://java-javalin-blog.hexlet.app) is a site that analyzes pages for SEO suitability.

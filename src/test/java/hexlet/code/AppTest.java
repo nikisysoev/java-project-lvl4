@@ -104,7 +104,6 @@ final class AppTest {
 
             assertThat(response.getStatus()).isEqualTo(200);
             assertThat(response.getBody()).contains(existingUrl.getName());
-            //assertThat(response.getBody()).contains(createdAt);
         }
 
         @Test

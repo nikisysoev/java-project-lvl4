@@ -7,6 +7,7 @@ import hexlet.code.domain.query.QUrlCheck;
 
 import io.ebean.PagedList;
 
+import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.NotFoundResponse;
 
@@ -25,6 +26,8 @@ import java.util.stream.IntStream;
 
 public final class UrlController {
 
+    private static URL urlNet;
+
     public static Handler listUrls = ctx -> {
         int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1) - 1;
         int rowsPerPage = 10;
@@ -35,19 +38,18 @@ public final class UrlController {
                 .orderBy().id.asc()
                 .findPagedList();
 
+        int currentPage = pagedList.getPageIndex() + 1;
+        int totalPages = pagedList.getTotalPageCount() + 1;
+        List<Integer> pages = IntStream
+                .range(1, totalPages)
+                .boxed().toList();
+
         List<Url> urls = pagedList.getList();
         List<UrlCheck> lastUrlChecks = urls.stream()
                 .map(Url::getUrlChecks)
                 .filter(list -> !list.isEmpty())
-                .map(list -> list.get(list.size() - 1)).
-                toList();
-
-        int currentPage = pagedList.getPageIndex() + 1;
-        int totalPages = pagedList.getTotalPageCount() + 1;
-
-        List<Integer> pages = IntStream
-                .range(1, totalPages)
-                .boxed().toList();
+                .map(list -> list.get(list.size() - 1))
+                .toList();
 
         ctx.attribute("pages", pages);
         ctx.attribute("currentPage", currentPage);
@@ -57,11 +59,10 @@ public final class UrlController {
     };
 
     public static Handler checkNewUrl = ctx -> {
-        String url = ctx.formParam("url");
+        String urlFormParam = ctx.formParam("url");
 
-        URL urlNet;
         try {
-            urlNet = new URL(url);
+            urlNet = new URL(urlFormParam);
         } catch (MalformedURLException e) {
             ctx.sessionAttribute("flash", "Некорректный URL");
             ctx.sessionAttribute("flash-type", "danger");
@@ -91,15 +92,8 @@ public final class UrlController {
     };
 
     public static Handler showUrl = ctx -> {
-        int id = ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
-
-        Url urlModel = new QUrl()
-                .id.equalTo(id)
-                .findOne();
-
-        if (urlModel == null) {
-            throw new NotFoundResponse();
-        }
+        Url urlModel = getUrlModel(ctx);
+        int id = getUrlId(ctx);
 
         List<UrlCheck> urlChecks = new QUrlCheck()
                 .url.id.equalTo(id)
@@ -111,17 +105,10 @@ public final class UrlController {
     };
 
     public static Handler checkExistingUrl = ctx -> {
-        int id = ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
+        Url urlModel = getUrlModel(ctx);
 
-        Url urlModel = new QUrl()
-                .id.equalTo(id)
-                .findOne();
-
-        if (urlModel == null) {
-            throw new NotFoundResponse();
-        }
-
-        HttpResponse<String> response = Unirest.get(urlModel.getName()).asString();
+        HttpResponse<String> response = Unirest.get(urlModel.getName())
+                        .asString();
         int statusCode = response.getStatus();
 
         Document doc = Jsoup.parse(response.getBody());
@@ -137,6 +124,24 @@ public final class UrlController {
 
         ctx.sessionAttribute("flash", "Страница успешно проверена");
         ctx.sessionAttribute("flash-type", "success");
-        ctx.redirect("/urls/" + id);
+        ctx.redirect("/urls/" + getUrlId(ctx));
     };
+
+    private static Url getUrlModel(Context ctx) {
+        int id = getUrlId(ctx);
+
+        Url urlModel = new QUrl()
+                .id.equalTo(id)
+                .findOne();
+
+        if (urlModel == null) {
+            throw new NotFoundResponse();
+        }
+
+        return urlModel;
+    }
+
+    private static int getUrlId(Context ctx) {
+        return ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
+    }
 }
