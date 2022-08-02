@@ -6,4 +6,4 @@
 
 # PageAnalyzer
 
-[PageAnalyzer](https://java-javalin-blog.hexlet.app) is a site that analyzes pages for SEO suitability.
+[PageAnalyzer](https://page-analyzer-by-nikisysoev.herokuapp.com/) is a site that analyzes pages for SEO suitability.
