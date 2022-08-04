@@ -19,10 +19,8 @@ public final class UrlCheck extends Model {
 
     private int statusCode;
 
-    @Lob
     private String title;
 
-    @Lob
     private String h1;
 
     @Lob

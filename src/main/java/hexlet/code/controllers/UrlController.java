@@ -7,7 +7,6 @@ import hexlet.code.domain.query.QUrlCheck;
 
 import io.ebean.PagedList;
 
-import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.NotFoundResponse;
 
@@ -25,8 +24,6 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public final class UrlController {
-
-    private static URL urlNet;
 
     public static Handler listUrls = ctx -> {
         int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1) - 1;
@@ -60,6 +57,7 @@ public final class UrlController {
 
     public static Handler checkNewUrl = ctx -> {
         String urlFormParam = ctx.formParam("url");
+        URL urlNet;
 
         try {
             urlNet = new URL(urlFormParam);
@@ -73,7 +71,7 @@ public final class UrlController {
         String urlName = urlNet.getProtocol() + "://" + urlNet.getAuthority();
 
         Url urlModel = new QUrl()
-                .name.iequalTo(urlName)
+                .name.equalTo(urlName)
                 .findOne();
 
         if (urlModel != null) {
@@ -92,8 +90,15 @@ public final class UrlController {
     };
 
     public static Handler showUrl = ctx -> {
-        Url urlModel = getUrlModel(ctx);
-        int id = getUrlId(ctx);
+        int id = ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
+
+        Url urlModel = new QUrl()
+                .id.equalTo(id)
+                .findOne();
+
+        if (urlModel == null) {
+            throw new NotFoundResponse();
+        }
 
         List<UrlCheck> urlChecks = new QUrlCheck()
                 .url.id.equalTo(id)
@@ -105,30 +110,7 @@ public final class UrlController {
     };
 
     public static Handler checkExistingUrl = ctx -> {
-        Url urlModel = getUrlModel(ctx);
-
-        HttpResponse<String> response = Unirest.get(urlModel.getName())
-                        .asString();
-        int statusCode = response.getStatus();
-
-        Document doc = Jsoup.parse(response.getBody());
-        String title = doc.title();
-
-        Element h1Elem = doc.selectFirst("h1");
-        Element descriptionElem = doc.selectFirst("meta[name=description]");
-        String h1 = (h1Elem != null) ? h1Elem.text() : "";
-        String description = (descriptionElem != null) ? descriptionElem.attr("content") : "";
-
-        UrlCheck urlCheck = new UrlCheck(statusCode, title, h1, description, urlModel);
-        urlCheck.save();
-
-        ctx.sessionAttribute("flash", "Страница успешно проверена");
-        ctx.sessionAttribute("flash-type", "success");
-        ctx.redirect("/urls/" + getUrlId(ctx));
-    };
-
-    private static Url getUrlModel(Context ctx) {
-        int id = getUrlId(ctx);
+        int id = ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
 
         Url urlModel = new QUrl()
                 .id.equalTo(id)
@@ -138,10 +120,30 @@ public final class UrlController {
             throw new NotFoundResponse();
         }
 
-        return urlModel;
-    }
+        try {
+            HttpResponse<String> response = Unirest.get(urlModel.getName())
+                    .asString();
+            int statusCode = response.getStatus();
 
-    private static int getUrlId(Context ctx) {
-        return ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
-    }
+            Document doc = Jsoup.parse(response.getBody());
+            String title = doc.title();
+
+            Element h1Elem = doc.selectFirst("h1");
+            Element descriptionElem = doc.selectFirst("meta[name=description]");
+            String h1 = (h1Elem != null) ? h1Elem.text() : "";
+            String description = (descriptionElem != null) ? descriptionElem.attr("content") : "";
+
+            UrlCheck urlCheck = new UrlCheck(statusCode, title, h1, description, urlModel);
+            urlCheck.save();
+
+            ctx.sessionAttribute("flash", "Страница успешно проверена");
+            ctx.sessionAttribute("flash-type", "success");
+
+        } catch (Exception e) {
+            ctx.sessionAttribute("flash", e.getMessage());
+            ctx.sessionAttribute("flash-type", "danger");
+        }
+
+        ctx.redirect("/urls/" + id);
+    };
 }
