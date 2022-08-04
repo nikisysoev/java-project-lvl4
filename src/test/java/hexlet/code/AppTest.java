@@ -59,6 +59,9 @@ final class AppTest {
 
         existingUrl = new Url(mockUrl);
         existingUrl.save();
+
+        existingUrlCheck = new UrlCheck(200, "title", "h1", "description", existingUrl);
+        existingUrlCheck.save();
     }
 
     @AfterAll
@@ -98,12 +101,13 @@ final class AppTest {
             DateTimeFormatter formatter = DateTimeFormatter.
                     ofPattern("dd/MM/yyyy HH:mm").
                     withZone(ZoneId.systemDefault());
-            String createdAt = formatter.format(existingUrl.getCreatedAt());
+            String createdAt = formatter.format(existingUrlCheck.getCreatedAt());
 
             HttpResponse<String> response = Unirest.get(baseUrl + "/urls").asString();
 
             assertThat(response.getStatus()).isEqualTo(200);
             assertThat(response.getBody()).contains(existingUrl.getName());
+            assertThat(response.getBody()).contains(createdAt);
         }
 
         @Test
