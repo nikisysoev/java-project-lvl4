@@ -133,6 +133,14 @@ final class AppTest {
 
             assertThat(url).isNotNull();
             assertThat(url.getName()).isEqualTo(urlName);
+
+            HttpResponse responsePost2 = Unirest.post(baseUrl + "/urls")
+                    .field("url", "errorUrl")
+                    .asEmpty();
+
+            HttpResponse<String> response2 = Unirest.get(baseUrl).asString();
+
+            assertThat(response2.getBody()).contains("Некорректный URL");
         }
 
         @Test
