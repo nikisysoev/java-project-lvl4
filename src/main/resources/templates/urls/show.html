@@ -4,27 +4,27 @@
 
 <section layout:fragment="content" th:object="${url}">
     <div class="container-lg mt-5">
-        <h1 th:text="'Сайт ' + *{getName()}"></h1>
+        <h1 th:text="'Сайт ' + *{name}"></h1>
         <table class="table table-bordered table-hover mt-3">
             <tbody>
             <tr>
                 <td>ID</td>
-                <td th:text="*{getId()}"></td>
+                <td th:text="*{id}"></td>
             </tr>
 
             <tr>
                 <td>Имя</td>
-                <td th:text="*{getName()}">/td>
+                <td th:text="*{name}">/td>
             </tr>
 
             <tr>
                 <td>Дата создания</td>
-                <td th:text="${#temporals.format(url.getCreatedAt(), 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${#temporals.format(url.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
             </tr>
             </tbody>
         </table>
         <h2 class="mt-5">Проверки</h2>
-        <form method="post" th:action="@{/urls/{id}/checks(id=*{getId()})}">
+        <form method="post" th:action="@{/urls/{id}/checks(id=*{id})}">
             <button type="submit" class="btn btn-primary">Запустить проверку</button>
         </form>
 
@@ -42,12 +42,12 @@
 
             <tbody>
             <tr th:each="urlСheck : ${urlChecks}" th:object="${urlСheck}">
-                <td th:text="*{getId()}"></td>
-                <td th:text="*{getStatusCode()}"></td>
-                <td th:text="*{getTitle()}"></td>
-                <td th:text="*{getH1()}"></td>
-                <td th:text="*{getDescription()}"></td>
-                <td th:text="${#temporals.format(urlСheck.getCreatedAt(), 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="*{id}"></td>
+                <td th:text="*{statusCode}"></td>
+                <td th:text="*{title}"></td>
+                <td th:text="*{h1}"></td>
+                <td th:text="*{description}"></td>
+                <td th:text="${#temporals.format(urlСheck.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
             </tr>
             </tbody>
         </table>

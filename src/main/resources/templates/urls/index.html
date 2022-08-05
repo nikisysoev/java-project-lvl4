@@ -17,21 +17,24 @@
 
             <tbody>
             <tr th:each="url,urlIter : ${urls}" th:object="${url}" >
-                <td class="col-1" th:text="*{getId()}"></td>
+                <td class="col-1" th:text="*{id}"></td>
                 <td>
-                    <a th:href="@{/urls/{id}(id=*{getId()})}" th:text="*{getName()}"></a>
+                    <a th:href="@{/urls/{id}(id=*{id})}" th:text="*{name}"></a>
                 </td>
 
-                <td class="col-2" >
-                    <div th:each="lastUrlCheck,checkIter : ${lastUrlChecks}"
-                         th:if="${urlIter.index} == ${checkIter.index}"
-                         th:text="${#temporals.format(lastUrlCheck.getCreatedAt(), 'dd/MM/yyyy HH:mm')}"></div>
+                <td>
+                    <span class="col-2"
+                          th:if="${not #lists.isEmpty(url.urlChecks)}"
+                          th:text="${#temporals.format(url.urlChecks[#lists.size(url.urlChecks)-1].createdAt,
+                          'dd/MM/yyyy HH:mm')}">
+                    </span>
                 </td>
 
-                <td class="col-1">
-                    <div th:each="lastUrlCheck,checkIter : ${lastUrlChecks}"
-                         th:if="${urlIter.index} == ${checkIter.index}"
-                         th:text="${lastUrlCheck.getStatusCode()}"></div>
+                <td>
+                    <span class="col-1"
+                          th:if="${not #lists.isEmpty(url.urlChecks)}"
+                          th:text="${url.urlChecks[#lists.size(url.urlChecks)-1].statusCode}">
+                    </span>
                 </td>
             </tr>
             </tbody>

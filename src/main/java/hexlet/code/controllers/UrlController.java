@@ -37,21 +37,16 @@ public final class UrlController {
 
         int currentPage = pagedList.getPageIndex() + 1;
         int totalPages = pagedList.getTotalPageCount() + 1;
+
         List<Integer> pages = IntStream
                 .range(1, totalPages)
                 .boxed().toList();
 
         List<Url> urls = pagedList.getList();
-        List<UrlCheck> lastUrlChecks = urls.stream()
-                .map(Url::getUrlChecks)
-                .filter(list -> !list.isEmpty())
-                .map(list -> list.get(list.size() - 1))
-                .toList();
 
         ctx.attribute("pages", pages);
         ctx.attribute("currentPage", currentPage);
         ctx.attribute("urls", urls);
-        ctx.attribute("lastUrlChecks", lastUrlChecks);
         ctx.render("urls/index.html");
     };
 
